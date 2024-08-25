@@ -42,15 +42,17 @@ set -euo pipefail
 echo
 echo "Fetching previous 'latest' release sysexts"
 echo "=========================================="
-curl -fsSL --retry-delay 1 --retry 60 --retry-connrefused \
+curl -o latest-releases -fSL --retry-delay 1 --retry 60 --retry-connrefused \
          --retry-max-time 60 --connect-timeout 20  \
-         https://api.github.com/repos/joonas/sysext-leipomo/releases/latest \
-    | jq -r '.assets[].browser_download_url' | grep -E '\.raw$' | tee prev_release_sysexts.txt
+         https://api.github.com/repos/joonas/sysext-leipomo/releases/latest
+
+cat latest-releases
+cat latest-releases | jq -r '.assets[].browser_download_url' | grep -E '\.raw$' | tee prev_release_sysexts.txt
 
 for asset in $(cat prev_release_sysexts.txt); do
     echo
     echo "  ## Fetching $(basename "${asset}") <-- ${asset}"
-    curl -O -fsSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20  "${asset}"
+    curl -O -fSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20  "${asset}"
 done
 
 streams=()
