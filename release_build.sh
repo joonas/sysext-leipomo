@@ -39,24 +39,24 @@ set -euo pipefail
 #    CRIO+=( "crio-${version:1}" )
 #done
 
-echo
-echo "Fetching previous 'latest' release sysexts"
-echo "=========================================="
-curl -o latest-releases -fSL --retry-delay 1 --retry 60 --retry-connrefused \
-         --retry-max-time 60 --connect-timeout 20  \
-         -H "Accept: application/vnd.github+json" \
-         -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-         -H "X-GitHub-Api-Version: 2022-11-28" \
-         https://api.github.com/repos/joonas/sysext-leipomo/releases/latest
-
-cat latest-releases
-cat latest-releases | jq -r '.assets[].browser_download_url' | grep -E '\.raw$' | tee prev_release_sysexts.txt
-
-for asset in $(cat prev_release_sysexts.txt); do
-    echo
-    echo "  ## Fetching $(basename "${asset}") <-- ${asset}"
-    curl -O -fSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20  "${asset}"
-done
+#echo
+#echo "Fetching previous 'latest' release sysexts"
+#echo "=========================================="
+#curl -o latest-releases -fSL --retry-delay 1 --retry 60 --retry-connrefused \
+#         --retry-max-time 60 --connect-timeout 20  \
+#         -H "Accept: application/vnd.github+json" \
+#         -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+#         -H "X-GitHub-Api-Version: 2022-11-28" \
+#         https://api.github.com/repos/joonas/sysext-leipomo/releases/latest
+#
+#cat latest-releases
+#cat latest-releases | jq -r '.assets[].browser_download_url' | grep -E '\.raw$' | tee prev_release_sysexts.txt
+#
+#for asset in $(cat prev_release_sysexts.txt); do
+#    echo
+#    echo "  ## Fetching $(basename "${asset}") <-- ${asset}"
+#    curl -O -fSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20  "${asset}"
+#done
 
 streams=()
 
@@ -102,7 +102,7 @@ done
   
 echo "" >> Release.md
 echo "The release includes the following sysexts from previous releases:" >> Release.md
-sed 's/^/* /' prev_release_sysexts.txt >> Release.md
+#sed 's/^/* /' prev_release_sysexts.txt >> Release.md
 
 echo
 echo "Generating systemd-sysupdate configurations and SHA256SUM."
