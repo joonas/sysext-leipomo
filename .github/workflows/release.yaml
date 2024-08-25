@@ -28,6 +28,8 @@ jobs:
             gawk
 
       - name: build release artifacts
+        env:
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pushd bakery
           ./release_build.sh

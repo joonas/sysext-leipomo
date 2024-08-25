@@ -44,6 +44,9 @@ echo "Fetching previous 'latest' release sysexts"
 echo "=========================================="
 curl -o latest-releases -fSL --retry-delay 1 --retry 60 --retry-connrefused \
          --retry-max-time 60 --connect-timeout 20  \
+         -H "Accept: application/vnd.github+json" \
+         -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+         -H "X-GitHub-Api-Version: 2022-11-28" \
          https://api.github.com/repos/joonas/sysext-leipomo/releases/latest
 
 cat latest-releases
