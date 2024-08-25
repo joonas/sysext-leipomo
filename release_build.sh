@@ -9,42 +9,42 @@
 set -euo pipefail
 
 
-echo
-echo "Fetching list of latest Kubernetes minor releases"
-echo "================================================="
-KBS_VERS=$(curl -fsSL --retry-delay 1 --retry 60 --retry-connrefused \
-                --retry-max-time 60 --connect-timeout 20  \
-                https://raw.githubusercontent.com/kubernetes/website/main/data/releases/schedule.yaml \
-		| yq -r '.schedules[] | .previousPatches[0] // (.release = .release + ".0") | .release')
-if [[ -z "${KBS_VERS}" ]] ; then
-    echo "Failed fetching Kubernetes versions"
-    exit 1
-fi
-
-KBS_VERS_ARRAY=(${KBS_VERS})
-printf "%s\n" "${KBS_VERS_ARRAY[@]}"
-
-echo "Fetching list of latest CRI-O patch releases"
-echo "================================================="
-
-git ls-remote --tags --sort=-v:refname https://github.com/cri-o/cri-o \
-    | grep -v "{}" \
-    | awk '{ print $2}' \
-    | cut --delimiter='/' --fields=3 \
-    > crio.txt
-
-CRIO=()
-for r in "${KBS_VERS_ARRAY[@]}"; do
-    version=$(cat crio.txt | grep "v${r%.*}" | head -n1)
-    CRIO+=( "crio-${version:1}" )
-done
+#echo
+#echo "Fetching list of latest Kubernetes minor releases"
+#echo "================================================="
+#KBS_VERS=$(curl -fsSL --retry-delay 1 --retry 60 --retry-connrefused \
+#                --retry-max-time 60 --connect-timeout 20  \
+#                https://raw.githubusercontent.com/kubernetes/website/main/data/releases/schedule.yaml \
+#		| yq -r '.schedules[] | .previousPatches[0] // (.release = .release + ".0") | .release')
+#if [[ -z "${KBS_VERS}" ]] ; then
+#    echo "Failed fetching Kubernetes versions"
+#    exit 1
+#fi
+#
+#KBS_VERS_ARRAY=(${KBS_VERS})
+#printf "%s\n" "${KBS_VERS_ARRAY[@]}"
+#
+#echo "Fetching list of latest CRI-O patch releases"
+#echo "================================================="
+#
+#git ls-remote --tags --sort=-v:refname https://github.com/cri-o/cri-o \
+#    | grep -v "{}" \
+#    | awk '{ print $2}' \
+#    | cut --delimiter='/' --fields=3 \
+#    > crio.txt
+#
+#CRIO=()
+#for r in "${KBS_VERS_ARRAY[@]}"; do
+#    version=$(cat crio.txt | grep "v${r%.*}" | head -n1)
+#    CRIO+=( "crio-${version:1}" )
+#done
 
 echo
 echo "Fetching previous 'latest' release sysexts"
 echo "=========================================="
 curl -fsSL --retry-delay 1 --retry 60 --retry-connrefused \
          --retry-max-time 60 --connect-timeout 20  \
-         https://api.github.com/repos/flatcar/sysext-bakery/releases/latest \
+         https://api.github.com/repos/joonas/sysext-leipomo/releases/latest \
     | jq -r '.assets[].browser_download_url' | grep -E '\.raw$' | tee prev_release_sysexts.txt
 
 for asset in $(cat prev_release_sysexts.txt); do
@@ -62,12 +62,12 @@ echo "================"
 mapfile -t images < <( awk '{ content=sub("[[:space:]]*#.*", ""); if ($0) print $0; }' \
                        release_build_versions.txt )
 
-KUBERNETES=()
-for v in "${KBS_VERS_ARRAY[@]}"; do
-    KUBERNETES+=( "kubernetes-v${v}" )
-done
-images+=( "${CRIO[@]}" )
-images+=( "${KUBERNETES[@]}" )
+#KUBERNETES=()
+#for v in "${KBS_VERS_ARRAY[@]}"; do
+#    KUBERNETES+=( "kubernetes-v${v}" )
+#done
+#images+=( "${CRIO[@]}" )
+#images+=( "${KUBERNETES[@]}" )
 
 echo "building: ${images[@]}"
 
@@ -111,7 +111,7 @@ for stream in "${streams[@]}"; do
 Verify=false
 [Source]
 Type=url-file
-Path=https://github.com/flatcar/sysext-bakery/releases/latest/download/
+Path=https://github.com/joonas/sysext-leipomo/releases/latest/download/
 MatchPattern=${component}${pattern}-%a.raw
 [Target]
 InstancesMax=3
