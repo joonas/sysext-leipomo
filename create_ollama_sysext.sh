@@ -22,9 +22,6 @@ if [ "${ARCH}" = "x86_64" ] || [ "${ARCH}" = "x86-64" ]; then
   ARCH="amd64"
 elif [ "${ARCH}" = "aarch64" ]; then
   ARCH="arm64"
-else
-  echo "Unknown architecture ('${ARCH}') provided, supported values are 'amd64', 'arm64'."
-  exit 1
 fi
 
 VERSION="v${VERSION#v}"
