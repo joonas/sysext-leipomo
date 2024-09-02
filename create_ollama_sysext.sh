@@ -60,8 +60,8 @@ After=network-online.target
 
 [Service]
 Environment="HOME=/var/lib/ollama"
-Environment="OLLAMA_MODELS=/var/lib/ollama"
-Environment="OLLAMA_RUNNERS_DIR=/var/lib/ollama"
+Environment="OLLAMA_MODELS=/var/lib/ollama/models"
+Environment="OLLAMA_RUNNERS_DIR=/var/lib/ollama/runners"
 ExecStart=/usr/local/bin/ollama serve
 Restart=always
 
