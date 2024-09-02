@@ -3,4 +3,4 @@
 # For Kubernetes and CRI-O, we fetch the latest versions to be built.
 # The below lists _additional_ kubernetes versions to be built.
 
-ollama-0.3.6
+ollama-0.3.8
