@@ -6,7 +6,7 @@ SCRIPTFOLDER="$(dirname "$(readlink -f "$0")")"
 
 if [ $# -lt 2 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
   echo "Usage: $0 VERSION SYSEXTNAME"
-  echo "The script will download ollama release binaries (e.g., for v0.3.6) and create a sysext squashfs image with the name SYSEXTNAME.raw in the current folder."
+  echo "The script will download ollama release binaries (e.g., for v0.3.8) and create a sysext squashfs image with the name SYSEXTNAME.raw in the current folder."
   echo "A temporary directory named SYSEXTNAME in the current folder will be created and deleted again."
   echo "All files in the sysext image will be owned by root."
   echo "To use arm64 pass 'ARCH=arm64' as environment variable (current value is '${ARCH}')."
@@ -26,8 +26,11 @@ fi
 
 VERSION="v${VERSION#v}"
 
-BIN_URL="https://github.com/ollama/ollama/releases/download/${VERSION}/ollama-linux-${ARCH}"
-SHA_URL="https://github.com/ollama/ollama/releases/download/${VERSION}/sha256sum.txt"
+TARBALL="ollama-linux-${ARCH}.tgz"
+SHASUM="sha256sum.txt"
+
+TARBALL_URL="https://github.com/ollama/ollama/releases/download/${VERSION}/${TARBALL}"
+SHASUM_URL="https://github.com/ollama/ollama/releases/download/${VERSION}/${SHASUM}"
 
 rm -rf "${SYSEXTNAME}"
 
@@ -35,16 +38,16 @@ TMP_DIR="${SYSEXTNAME}/tmp"
 mkdir -p "${TMP_DIR}"
 
 curl --parallel --fail --silent --show-error --location \
-  --output "${TMP_DIR}/ollama-linux-${ARCH}" "${BIN_URL}" \
-  --output "${TMP_DIR}/sha256sums" "${SHA_URL}"
+  --output "${TMP_DIR}/${TARBALL}" "${TARBALL_URL}" \
+  --output "${TMP_DIR}/${SHASUM}" "${SHASUM_URL}"
 
 pushd "${TMP_DIR}" > /dev/null
-grep "ollama-linux-${ARCH}$" ./sha256sums | sha256sum -c -
+grep "${TARBALL}$" "${SHASUM}" | sha256sum -c -
 popd  > /dev/null
 
-mkdir -p "${SYSEXTNAME}"/usr/local/bin
+mkdir -p "${SYSEXTNAME}/usr/local"
 
-mv "${TMP_DIR}/ollama-linux-${ARCH}" "${SYSEXTNAME}/usr/local/bin/ollama"
+tar --force-local -xf "${TMP_DIR}/${TARBALL}" -C "${SYSEXTNAME}/usr/local"
 chmod +x "${SYSEXTNAME}/usr/local/bin/ollama"
 
 mkdir -p "${SYSEXTNAME}/usr/lib/systemd/system"
@@ -56,6 +59,9 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
+Environment="HOME=/var/lib/ollama"
+Environment="OLLAMA_MODELS=/var/lib/ollama"
+Environment="OLLAMA_RUNNERS_DIR=/var/lib/ollama"
 ExecStart=/usr/local/bin/ollama serve
 Restart=always
 
