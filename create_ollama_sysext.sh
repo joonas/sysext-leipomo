@@ -69,6 +69,9 @@ Restart=always
 WantedBy=multi-user.target
 EOF
 
+mkdir -p "${SYSEXTNAME}"/usr/lib/systemd/system/multi-user.target.d
+{ echo "[Unit]"; echo "Upholds=ollama.service"; } > "${SYSEXTNAME}"/usr/lib/systemd/system/multi-user.target.d/10-ollama.conf
+
 rm -rf "${TMP_DIR}"
 
 RELOAD=1 "${SCRIPTFOLDER}"/bake.sh "${SYSEXTNAME}"
